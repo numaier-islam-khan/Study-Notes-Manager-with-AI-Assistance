@@ -8,7 +8,10 @@ Each page is imported from the pages/ folder.
 
 import streamlit as st
 import os
-
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
+from datetime import datetime
 # ── Page Config (must be first Streamlit call) ────────────────────────────────
 st.set_page_config(
     page_title  = "AI Study Notes Manager",
