@@ -60,13 +60,26 @@ def add_note(title, content, summary="", keywords=""):
 
 
 def get_all_notes():
-    """Fetch all notes ordered by newest first."""
+    """
+    Fetch all notes ordered by newest first.
+    Returns list of dictionaries with word_count calculated.
+    """
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM notes ORDER BY created_at DESC")
     rows = cursor.fetchall()
     conn.close()
-    return [dict(row) for row in rows]
+    
+    # Convert rows to dictionaries with word_count
+    notes = []
+    for row in rows:
+        note = dict(row)
+        # Calculate word count from content
+        content = note.get('content', '')
+        note['word_count'] = len(content.split()) if content else 0
+        notes.append(note)
+    
+    return notes
 
 
 def get_note_by_id(note_id):
@@ -129,7 +142,16 @@ def search_notes(query):
     """, (like_query, like_query, like_query))
     rows = cursor.fetchall()
     conn.close()
-    return [dict(row) for row in rows]
+    
+    # Convert to dictionaries with word_count
+    notes = []
+    for row in rows:
+        note = dict(row)
+        content = note.get('content', '')
+        note['word_count'] = len(content.split()) if content else 0
+        notes.append(note)
+    
+    return notes
 
 
 def get_stats():
@@ -150,7 +172,13 @@ def get_stats():
     total_words = row["words"] if row["words"] else 0
 
     cursor.execute("SELECT * FROM notes ORDER BY created_at DESC LIMIT 5")
-    recent = [dict(r) for r in cursor.fetchall()]
+    recent_rows = cursor.fetchall()
+    recent = []
+    for r in recent_rows:
+        note = dict(r)
+        content = note.get('content', '')
+        note['word_count'] = len(content.split()) if content else 0
+        recent.append(note)
 
     conn.close()
     return {
